@@ -21,25 +21,14 @@ export const twoFactorMethodEnum = pgEnum("two_factor_method", [
   "backup_code",
 ]);
 export const oauthProviderEnum = pgEnum("oauth_provider", ["google", "apple"]);
-export const employeeStatusEnum = pgEnum("employee_status", [
-  "Active",
-  "Inactive",
-]);
-export const employeeTypeEnum = pgEnum("employee_type", [
-  "Freelancer",
-  "Contractor",
-]);
 export const kybStatusEnum = pgEnum("kyb_status", [
   "not_started",
   "pending",
   "verified",
   "rejected",
 ]);
-export const timesheetStatusEnum = pgEnum("timesheet_status", [
-  "Pending",
-  "Approved",
-  "Rejected",
-]);
+export const leaveStatusEnum = pgEnum("leave_status", ["Pending", "Approved", "Rejected", "Cancelled",]);
+export const leaveTypeEnum = pgEnum("leave_type", ["vacation", "sick", "personal", "other",]);
 export const contractStatusEnum = pgEnum("contract_status", [
   "pending_signature",
   "in_review",
@@ -51,6 +40,19 @@ export const contractTypeEnum = pgEnum("contract_type", [
   "fixed_rate",
   "pay_as_you_go",
   "milestone",
+]);
+export const employeeStatusEnum = pgEnum("employee_status", [
+  "Active",
+  "Inactive",
+]);
+export const employeeTypeEnum = pgEnum("employee_type", [
+  "Freelancer",
+  "Contractor",
+]);
+export const timesheetStatusEnum = pgEnum("timesheet_status", [
+  "Pending",
+  "Approved",
+  "Rejected",
 ]);
 export const paymentTypeEnum = pgEnum("payment_type", ["crypto", "fiat"]);
 export const invoiceStatusEnum = pgEnum("invoice_status", [
@@ -239,6 +241,7 @@ export const employees = pgTable(
 
 export const companyProfiles = pgTable("company_profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   organizationId: uuid("organization_id")
     .references(() => organizations.id, { onDelete: "cascade" })
     .notNull()
@@ -308,6 +311,11 @@ export const kybVerifications = pgTable("kyb_verifications", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+export const milestoneStatusEnum = pgEnum("milestone_status", [
+  "In Progress",
+  "Approved", 
+  "Rejected",
+]);
 
 export const contracts = pgTable(
   "contracts",
