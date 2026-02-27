@@ -87,6 +87,10 @@ export class CompanyService {
       throw new NotFoundError("Organization not found");
     }
 
+    if (!data) {
+      throw new NotFoundError("Check inputted data for errors");
+    }
+
     const updatedCompanyProfile = _.merge({}, org, data);
 
 
