@@ -5,38 +5,6 @@ import { AuthUtils } from "@/server/utils/auth";
 import { invitationService } from "@/server/services/invitation.service";
 import { deleteInvitationSchema } from "@/server/validations/invitation.schema";
 
-/**
- * @swagger
- * /invitations/delete:
- *   delete:
- *     summary: Delete organization invitation
- *     description: Delete an invitation (cannot delete accepted invitations)
- *     tags: [Invitations]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - invitationId
- *             properties:
- *               invitationId:
- *                 type: string
- *                 format: uuid
- *                 description: ID of the invitation to delete
- *     responses:
- *       200:
- *         description: Invitation deleted successfully
- *       400:
- *         description: Cannot delete accepted invitations
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Invitation not found
- */
 export async function DELETE(req: NextRequest) {
   try {
     const { user } = await AuthUtils.authenticateRequest(req);

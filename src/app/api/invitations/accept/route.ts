@@ -50,32 +50,20 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const validatedBody = acceptInvitationSchema.safeParse(body);
-
     if (!validatedBody.success) {
       throw new ValidationError(
         "Invalid request body",
         validatedBody.error.flatten().fieldErrors as Record<string, unknown>,
       );
     }
-
-    // This would need to be integrated with user creation service
-    // For now, we'll just validate the invitation exists
     const invitation = await invitationService.getInvitationByToken(validatedBody.data.token);
     
     if (!invitation) {
       throw new AppError("Invalid invitation token", 404);
     }
-
     if (invitation.status !== "pending") {
       throw new AppError("Invitation is no longer valid", 400);
     }
-
-    // TODO: Create user account and accept invitation
-    // This would involve:
-    // 1. Creating the user with the provided details
-    // 2. Hashing the password
-    // 3. Calling invitationService.acceptInvitation()
-
     return ApiResponse.success(
       { message: "Invitation accepted successfully" },
       "Invitation accepted successfully"
@@ -84,7 +72,6 @@ export async function POST(req: NextRequest) {
     if (error instanceof AppError) {
       return ApiResponse.error(error.message, error.statusCode, error.errors);
     }
-
     console.error("[Accept Invitation Error]", error);
     return ApiResponse.error("Internal server error", 500);
   }

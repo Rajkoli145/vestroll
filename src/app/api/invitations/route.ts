@@ -10,50 +10,6 @@ import {
   deleteInvitationSchema
 } from "@/server/validations/invitation.schema";
 
-/**
- * @swagger
- * /invitations:
- *   get:
- *     summary: List organization invitations
- *     description: Get a paginated list of invitations for the authenticated user's organization
- *     tags: [Invitations]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *           enum: [pending, accepted, declined, expired]
- *         description: Filter by invitation status
- *       - in: query
- *         name: role
- *         schema:
- *           type: string
- *           enum: [admin, hr_manager, payroll_manager, employee]
- *         description: Filter by invitation role
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 20
- *         description: Items per page (max 100)
- *     responses:
- *       200:
- *         description: Invitations retrieved successfully
- *       400:
- *         description: Invalid query parameters
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: User not associated with an organization
- */
 export async function GET(req: NextRequest) {
   try {
     const { user } = await AuthUtils.authenticateRequest(req);
@@ -94,48 +50,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-/**
- * @swagger
- * /invitations:
- *   post:
- *     summary: Create organization invitation
- *     description: Send an invitation to join the organization
- *     tags: [Invitations]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - role
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: Email address of the person to invite
- *               role:
- *                 type: string
- *                 enum: [admin, hr_manager, payroll_manager, employee]
- *                 description: Role to assign to the invited user
- *               message:
- *                 type: string
- *                 description: Personal message to include in the invitation
- *     responses:
- *       201:
- *         description: Invitation created successfully
- *       400:
- *         description: Invalid request body
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: User not associated with an organization
- *       409:
- *         description: User already exists or invitation already pending
- */
 export async function POST(req: NextRequest) {
   try {
     const { user } = await AuthUtils.authenticateRequest(req);

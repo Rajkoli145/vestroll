@@ -3,28 +3,6 @@ import { ApiResponse } from "@/server/utils/api-response";
 import { AppError } from "@/server/utils/errors";
 import { invitationService } from "@/server/services/invitation.service";
 
-/**
- * @swagger
- * /invitations/validate:
- *   get:
- *     summary: Validate organization invitation
- *     description: Validate an invitation token and return invitation details
- *     tags: [Invitations]
- *     parameters:
- *       - in: query
- *         name: token
- *         required: true
- *         schema:
- *           type: string
- *         description: Invitation token from email
- *     responses:
- *       200:
- *         description: Invitation validated successfully
- *       400:
- *         description: Invalid or expired invitation
- *       404:
- *         description: Invitation not found
- */
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
