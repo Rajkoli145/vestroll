@@ -227,4 +227,76 @@ describe("FlutterwaveProvider", () => {
       ).rejects.toThrow("Duplicate tx_ref");
     });
   });
+
+  describe("error handling", () => {
+    it("throws UnauthorizedError on 401", async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        json: async () => ({
+          status: "error",
+          message: "Invalid API key",
+          data: null,
+        }),
+      });
+
+      await expect(
+        provider.disburse({
+          amount: 1000,
+          reference: "ref-unauth",
+          narration: "Fail",
+          destinationBankCode: "058",
+          destinationAccountNumber: "0123456789",
+          destinationAccountName: "X",
+          currency: "NGN",
+        }),
+      ).rejects.toThrow("Invalid API key");
+    });
+
+    it("throws InternalServerError on 500", async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        json: async () => ({
+          status: "error",
+          message: "Internal server error",
+          data: null,
+        }),
+      });
+
+      await expect(
+        provider.disburse({
+          amount: 1000,
+          reference: "ref-500",
+          narration: "Server error",
+          destinationBankCode: "058",
+          destinationAccountNumber: "0123456789",
+          destinationAccountName: "X",
+          currency: "NGN",
+        }),
+      ).rejects.toThrow("Internal server error");
+    });
+
+    it("handles non-JSON responses gracefully via safeJson", async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        status: 502,
+        json: async () => {
+          throw new SyntaxError("Unexpected token");
+        },
+      });
+
+      await expect(
+        provider.disburse({
+          amount: 1000,
+          reference: "ref-badjson",
+          narration: "Bad gateway",
+          destinationBankCode: "058",
+          destinationAccountNumber: "0123456789",
+          destinationAccountName: "X",
+          currency: "NGN",
+        }),
+      ).rejects.toThrow("Flutterwave returned an invalid response (HTTP 502)");
+    });
+  });
 });
