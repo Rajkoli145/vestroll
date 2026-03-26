@@ -451,3 +451,10 @@ export const employeeRelations = relations(employees, (helpers: any) => ({
   }),
   milestones: helpers.many(milestones),
 }));
+
+// Transaction idempotency cache table (Issue #317)
+export const transactionCache = pgTable("transaction_cache", {
+  hash: text("hash").primaryKey(),
+  resultJson: text("result_json").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
