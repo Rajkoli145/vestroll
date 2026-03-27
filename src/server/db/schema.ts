@@ -29,8 +29,18 @@ export const kybStatusEnum = pgEnum("kyb_status", [
   "verified",
   "rejected",
 ]);
-export const leaveStatusEnum = pgEnum("leave_status", ["Pending", "Approved", "Rejected", "Cancelled",]);
-export const leaveTypeEnum = pgEnum("leave_type", ["vacation", "sick", "personal", "other",]);
+export const leaveStatusEnum = pgEnum("leave_status", [
+  "Pending",
+  "Approved",
+  "Rejected",
+  "Cancelled",
+]);
+export const leaveTypeEnum = pgEnum("leave_type", [
+  "vacation",
+  "sick",
+  "personal",
+  "other",
+]);
 export const contractStatusEnum = pgEnum("contract_status", [
   "pending_signature",
   "in_review",
@@ -83,6 +93,20 @@ export const fiatTransactionStatusEnum = pgEnum("fiat_transaction_status", [
   "pending",
   "completed",
   "failed",
+]);
+
+export const invitationRoleEnum = pgEnum("invitation_role", [
+  "admin",
+  "hr_manager",
+  "payroll_manager",
+  "employee",
+]);
+
+export const invitationStatusEnum = pgEnum("invitation_status", [
+  "pending",
+  "accepted",
+  "declined",
+  "expired",
 ]);
 
 export const auditEventEnum = pgEnum("audit_event", [
@@ -228,9 +252,9 @@ export const sessions = pgTable(
     deviceInfo: text("device_info"),
     expiresAt: timestamp("expires_at").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    lastUsedAt: timestamp("last_used_at"), 
+    lastUsedAt: timestamp("last_used_at"),
   },
-  (table) => [index("sessions_user_id_idx").on(table.userId)]
+  (table) => [index("sessions_user_id_idx").on(table.userId)],
 );
 
 export const loginAttempts = pgTable("login_attempts", {
@@ -317,7 +341,9 @@ export const employees = pgTable(
 
 export const companyProfiles = pgTable("company_profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
   organizationId: uuid("organization_id")
     .references(() => organizations.id, { onDelete: "cascade" })
     .notNull()
@@ -495,59 +521,77 @@ export const milestoneRelations = relations(milestones, (helpers: any) => ({
   }),
 }));
 
-export const timeOffRequests = pgTable("time_off_requests", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
-  employeeId: uuid("employee_id").references(() => employees.id, { onDelete: "cascade" }).notNull(),
-  type: timeOffTypeEnum("type").notNull(),
-  startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
-  reason: varchar("reason", { length: 255 }).notNull(),
-  description: text("description"),
-  totalDuration: integer("total_duration").notNull(),
-  status: approvalStatusEnum("status").default("pending").notNull(),
-  submittedAt: timestamp("submitted_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => [
-  index("time_off_requests_organization_id_idx").on(table.organizationId),
-  index("time_off_requests_status_idx").on(table.status),
-]);
+export const timeOffRequests = pgTable(
+  "time_off_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .references(() => organizations.id, { onDelete: "cascade" })
+      .notNull(),
+    employeeId: uuid("employee_id")
+      .references(() => employees.id, { onDelete: "cascade" })
+      .notNull(),
+    type: timeOffTypeEnum("type").notNull(),
+    startDate: timestamp("start_date").notNull(),
+    endDate: timestamp("end_date").notNull(),
+    reason: varchar("reason", { length: 255 }).notNull(),
+    description: text("description"),
+    totalDuration: integer("total_duration").notNull(),
+    status: approvalStatusEnum("status").default("pending").notNull(),
+    submittedAt: timestamp("submitted_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("time_off_requests_organization_id_idx").on(table.organizationId),
+    index("time_off_requests_status_idx").on(table.status),
+  ],
+);
 
-export const passwordResets = pgTable("password_resets", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => [
-  index("password_resets_user_id_idx").on(table.userId),
-]);
+export const passwordResets = pgTable(
+  "password_resets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("password_resets_user_id_idx").on(table.userId)],
+);
 
-export const organizationInvitations = pgTable("organization_invitations", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  organizationId: uuid("organization_id")
-    .references(() => organizations.id, { onDelete: "cascade" })
-    .notNull(),
-  invitedByUserId: uuid("invited_by_user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  email: varchar("email", { length: 255 }).notNull(),
-  role: invitationRoleEnum("role").notNull(),
-  token: varchar("token", { length: 255 }).notNull().unique(),
-  status: invitationStatusEnum("status").default("pending").notNull(),
-  message: text("message"),
-  expiresAt: timestamp("expires_at").notNull(),
-  acceptedAt: timestamp("accepted_at"),
-  declinedAt: timestamp("declined_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => [
-  index("organization_invitations_organization_id_idx").on(table.organizationId),
-  index("organization_invitations_email_idx").on(table.email),
-  index("organization_invitations_token_idx").on(table.token),
-  index("organization_invitations_status_idx").on(table.status),
-]);
+export const organizationInvitations = pgTable(
+  "organization_invitations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .references(() => organizations.id, { onDelete: "cascade" })
+      .notNull(),
+    invitedByUserId: uuid("invited_by_user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    email: varchar("email", { length: 255 }).notNull(),
+    role: invitationRoleEnum("role").notNull(),
+    token: varchar("token", { length: 255 }).notNull().unique(),
+    status: invitationStatusEnum("status").default("pending").notNull(),
+    message: text("message"),
+    expiresAt: timestamp("expires_at").notNull(),
+    acceptedAt: timestamp("accepted_at"),
+    declinedAt: timestamp("declined_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("organization_invitations_organization_id_idx").on(
+      table.organizationId,
+    ),
+    index("organization_invitations_email_idx").on(table.email),
+    index("organization_invitations_token_idx").on(table.token),
+    index("organization_invitations_status_idx").on(table.status),
+  ],
+);
 
 export const organizationInvitationRelations = relations(
   organizationInvitations,
