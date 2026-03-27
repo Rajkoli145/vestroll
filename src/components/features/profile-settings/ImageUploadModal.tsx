@@ -148,7 +148,7 @@ const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
         0.9
       );
     });
-  }, [selectedImage, selectedFile, zoom, rotation, position]);
+  }, [selectedImage, selectedFile, zoom, rotation, position, shape]);
 
   const handleSave = async () => {
     if (!selectedFile) return;
