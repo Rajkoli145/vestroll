@@ -26,6 +26,7 @@ import {
   InsufficientFundsError,
   SimulationFailedError,
   TransactionRejectedError,
+  BlockchainError,
 } from "@/server/utils/errors/blockchain-error";
 
 type NetworkName = "testnet" | "mainnet" | "futurenet";
