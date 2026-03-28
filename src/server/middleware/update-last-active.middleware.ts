@@ -12,7 +12,6 @@ export function updateLastActive(userId: string): void {
 
   cache.set(userId, now);
 
-  // fire-and-forget — does not block the response
   db.update(users)
     .set({ lastActiveAt: new Date() })
     .where(eq(users.id, userId))
